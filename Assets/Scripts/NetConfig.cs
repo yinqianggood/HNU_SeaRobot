@@ -66,6 +66,12 @@ public class NetConfig
     public const string flot_back_on = "flot_back_on";
     public const string flot_back_off = "flot_back_off";
 
+    //Tether绳索伸出和收缩.
+    public const string tether_out_on = "tether_out_on";
+    public const string tether_out_off = "tether_out_off";
+    public const string tether_in_on = "tether_in_on";
+    public const string tether_in_off = "tether_in_off";
+
     //灯光控制.
     public const string lamp_port_stbd_on = "lamp_port_stbd_on";
     public const string lamp_port_stbd_off = "lamp_port_stbd_off";

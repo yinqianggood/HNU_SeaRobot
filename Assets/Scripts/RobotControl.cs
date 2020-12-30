@@ -35,6 +35,8 @@ public class RobotControl : MonoBehaviour
     public GameObject PT_BottomRoteteH;
     public GameObject PT_BottomRotateV;
 
+    public Rigidbody TMS_Tether;
+
     public GameObject flotPan;
 
     //作为单例类
@@ -122,10 +124,12 @@ public class RobotControl : MonoBehaviour
             MoveFlot(mDataStr);
         else if (mDataStr.Contains("lamp_"))
             LampControl(mDataStr);
+        else if (mDataStr.Contains("tether"))
+            TMSTetherControl(mDataStr);
         else
         {
             return;
-           
+
         }
         _rb.transform.localEulerAngles = new Vector3(0, _rb.transform.localEulerAngles.y, 0);
         
@@ -324,7 +328,7 @@ public class RobotControl : MonoBehaviour
         LampControl(tg1_isOn, tg2_isOn, tg3_isOn, tgAll_isOn);
 
     }
-    public void MoveROV(DIR dir, float speed=30,Boolean isPress=true)
+    public void MoveROV(DIR dir, float speed=300,Boolean isPress=true)
     {
 
      
@@ -466,6 +470,24 @@ public class RobotControl : MonoBehaviour
         }
     }
 
+    //TMS滚轮控制.
+    void TMSTetherControl(string mDataStr)
+    {
+        if(mDataStr==NetConfig.tether_out_on)
+        {
+            TMS_Tether.AddTorque(0, 0, 1);
+        }
+        else if(mDataStr==NetConfig.tether_in_on)
+        {
+            TMS_Tether.AddTorque(0, 0, -1);
+        }
+        else
+        {
+
+        }
+    }
+
+
     Vector3 getAngle(Transform t)
     {
         Vector3 angle = t.eulerAngles;
@@ -512,7 +534,7 @@ public class RobotControl : MonoBehaviour
             for (int i = 0; i < H_Propellers.Count; i++)
             {
               //  H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(Vector3.*100);
-               H_Propellers[i].transform.Rotate(new Vector3(0, speed, 0));
+               H_Propellers[i].transform.Rotate(new Vector3(0,speed,0));
                 // H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(new Vector3(0,speed*10,  0));
                 Debug.LogWarning(H_Propellers[i].GetComponent<Rigidbody>().angularVelocity);
             }
@@ -524,7 +546,7 @@ public class RobotControl : MonoBehaviour
             {
                 //H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(Vector3.forward * 10);
                 //V_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(new Vector3(0,0,speed*10));
-                V_Propellers[i].transform.Rotate(new Vector3( speed, 0,0));
+                V_Propellers[i].transform.Rotate(new Vector3( 0,speed,0));
             }
         }
        

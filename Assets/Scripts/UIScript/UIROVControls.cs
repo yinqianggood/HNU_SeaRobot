@@ -96,6 +96,14 @@ public class UIROVControls : UIPage
         EventTriggerListener.Get(t_flot_back).onDown += (t) => { UDPClient.instance.Send(NetConfig.flot_back_on); };
         EventTriggerListener.Get(t_flot_back).onUp += (t) => { UDPClient.instance.Send(NetConfig.flot_back_off); };
 
+        //Tether.
+        Transform t_tether_out = this.transform.Find("tether/btn_tether_down");
+        EventTriggerListener.Get(t_tether_out).onDown += (t) => { UDPClient.instance.Send(NetConfig.tether_out_on); };
+        EventTriggerListener.Get(t_tether_out).onUp += (t) => { UDPClient.instance.Send(NetConfig.tether_out_off); };
+        Transform t_tether_in = this.transform.Find("tether/btn_tether_up");
+        EventTriggerListener.Get(t_tether_in).onDown += (t) => { UDPClient.instance.Send(NetConfig.tether_in_on); };
+        EventTriggerListener.Get(t_tether_in).onUp += (t) => { UDPClient.instance.Send(NetConfig.tether_in_off); };
+
         #region“单机”
         /*
         mRC = GameObject.FindObjectOfType<RobotControl>();

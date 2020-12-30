@@ -14,6 +14,6 @@ public class AddForce : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rb.AddTorque(10, 0, 0);
+        rb.AddTorque(0, 0, 1);
     }
 }
