@@ -36,6 +36,10 @@ public class ControlData
     public float curDepth=20;//当前深度.
     public Vector3 cur_Velocity = Vector3.zero;
     public Vector3 cur_EularVelocity = Vector3.zero;
+
+    public float TMS_meters = 0;
+   
+
    // public float curSpeed = cur_Velocity.y;//0.1m/s.
   
 
@@ -117,4 +121,21 @@ public class ControlData
     {
         get { return (float)System.Math.Round(cur_Velocity.x * 58.6f, 1); }
     }
+
+    //
+    public float GetTMSBigRoll
+    {
+        get { return (float)System.Math.Round(cur_Velocity.x * 58.6f, 1); }
+    }
+
+    public float GetTMSBigSmallRoll
+    {
+        get { return (float)System.Math.Round(cur_Velocity.x * 58.6f, 1); }
+    }
+
+    public float getTMSMeters
+    {
+        get { return TMS_meters; }
+    }
+   
 }

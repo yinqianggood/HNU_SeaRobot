@@ -17,7 +17,7 @@ public class RobotControl : MonoBehaviour
 
     public List<Transform> H_Propellers = new List<Transform>();
     public List<Transform> V_Propellers = new List<Transform>();
-    private float mPropSpeed = 10;
+    private float mPropSpeed = 0;
 
     public List<GameObject> lamp_port_STBD;
     public List<GameObject> lamp_bullet_PT;
@@ -38,6 +38,8 @@ public class RobotControl : MonoBehaviour
     public Rigidbody TMS_Tether;
 
     public GameObject flotPan;
+
+    public Light Directional_light_Sun;
 
     //作为单例类
     private static RobotControl instance;
@@ -106,16 +108,20 @@ public class RobotControl : MonoBehaviour
            H_Propellers[i].transform.Rotate(new Vector3(0, 5, 0));
         }
     }
-
+    private float _propSpeed=1;
     // Update is called once per frame
     void Update()
     {
-       
+       // ThrusterControl(mPropSpeed, PROPDIR.Both);
         mDataStr = UDPServer.instance.recvStr;
         //  if(isDoing)
         if (string.IsNullOrEmpty(mDataStr)) return;
         if (mDataStr.Contains("rov_"))
+        {
             MoveROV(mDataStr);
+            
+        }
+           
         else if (mDataStr.Contains("arm_"))
             MoveArm(mDataStr);
         else if (mDataStr.Contains("cam_"))
@@ -132,7 +138,8 @@ public class RobotControl : MonoBehaviour
 
         }
         _rb.transform.localEulerAngles = new Vector3(0, _rb.transform.localEulerAngles.y, 0);
-        
+       
+
     }
     private void FixedUpdate()
     {
@@ -149,44 +156,92 @@ public class RobotControl : MonoBehaviour
 
         ControlData.Instance.cur_Velocity = _rb.velocity;
         ControlData.Instance.cur_EularVelocity = _rb.angularVelocity;
+       // mPropSpeed = 20;
         if (dirStr==NetConfig.rov_left_on)
         {
             MoveROV(DIR.Left);
+            mPropSpeed = 20;
+        }
+        else if (dirStr == NetConfig.rov_left_off)
+        {
+            mPropSpeed = 1;
         }
         else if(dirStr==NetConfig.rov_right_on)
         {
             MoveROV(DIR.Right);
+            mPropSpeed = -20;
+        }
+        else if (dirStr == NetConfig.rov_right_off)
+        {
+           
+            mPropSpeed = -1;
         }
         else if (dirStr == NetConfig.rov_up_on)
         {
             MoveROV(DIR.Up);
+            mPropSpeed = 20;
+        }
+        else if (dirStr == NetConfig.rov_up_off)
+        {
+           
+            mPropSpeed = 1;
         }
         else if (dirStr == NetConfig.rov_down_on)
         {
             MoveROV(DIR.Down);
+            mPropSpeed = -20;
+        }
+        else if (dirStr == NetConfig.rov_down_off)
+        {
+           
+            mPropSpeed = -21;
         }
         else if (dirStr == NetConfig.rov_foward_on)
         {
             MoveROV(DIR.Foward);
+            mPropSpeed = 20;
+        }
+        else if (dirStr == NetConfig.rov_foward_off)
+        {
+          
+            mPropSpeed = 1;
         }
         else if (dirStr == NetConfig.rov_back_on)
         {
             MoveROV(DIR.Back);
+            mPropSpeed = -20;
+        }
+        else if (dirStr == NetConfig.rov_back_off)
+        {
+           
+            mPropSpeed = -1;
         }
         else if (dirStr == NetConfig.rov_turn_left_on)
         {
             MoveROV(DIR.TurnL);
+            mPropSpeed = -20;
+        }
+        else if (dirStr == NetConfig.rov_turn_left_on)
+        {
+            
+            mPropSpeed = -1;
         }
         else if (dirStr == NetConfig.rov_turn_right_on)
         {
             MoveROV(DIR.TurnR);
+            mPropSpeed = 20;
+        }
+        else if (dirStr == NetConfig.rov_turn_right_off)
+        {
+           
+            mPropSpeed = 1;
         }
         else
         {
-            //Debug.LogWarning("unvaliad rov direction message:"+dirStr);
-            return;
+           // mPropSpeed = 0.5f;
+           // return;
         }
-
+      ThrusterControl(mPropSpeed, PROPDIR.Both);
         // isDoing = false;
     }
 
@@ -328,7 +383,7 @@ public class RobotControl : MonoBehaviour
         LampControl(tg1_isOn, tg2_isOn, tg3_isOn, tgAll_isOn);
 
     }
-    public void MoveROV(DIR dir, float speed=300,Boolean isPress=true)
+    public void MoveROV(DIR dir, float speed=30000,Boolean isPress=true)
     {
 
      
@@ -377,20 +432,21 @@ public class RobotControl : MonoBehaviour
                 MsgMng.Instance.Send(MessageName.MSG_MOVE_DOWN, new MessageData((int)DIR.Down));
                 break;
             case DIR.TurnL:
-                ThrusterControl(-mPropSpeed, PROPDIR.Horizontal);
+                ThrusterControl(-mPropSpeed/5, PROPDIR.Horizontal);
                 if (Mathf.Abs(_rb.angularVelocity.y) > 1) return;
-                _rb.AddRelativeTorque(new Vector3(0, -speed * Time.deltaTime, 0), ForceMode.Force);
+                _rb.AddRelativeTorque(new Vector3(0, -speed/10 * Time.deltaTime, 0), ForceMode.Force);
                 //ROV.transform.Rotate(new Vector3(0, -speed * Time.deltaTime, 0));
                 MsgMng.Instance.Send(MessageName.MSG_MOVE_TURN_L, new MessageData((int)DIR.TurnL));
                 break;
             case DIR.TurnR:
-                ThrusterControl(mPropSpeed, PROPDIR.Horizontal);
+                ThrusterControl(mPropSpeed/5, PROPDIR.Horizontal);
                 if (Mathf.Abs(_rb.angularVelocity.y) > 1) return;
-                _rb.AddRelativeTorque(new Vector3(0, speed * Time.deltaTime, 0), ForceMode.Force);
+                _rb.AddRelativeTorque(new Vector3(0, speed/10 * Time.deltaTime, 0), ForceMode.Force);
                 // ROV.transform.Rotate(new Vector3(0, speed * Time.deltaTime, 0));
                 MsgMng.Instance.Send(MessageName.MSG_MOVE_TURN_R, new MessageData((int)DIR.TurnR));
                 break;
             default:
+              
                 break;
         }
     }
@@ -469,22 +525,25 @@ public class RobotControl : MonoBehaviour
                 break;
         }
     }
-
+    private float tether_meters = 20;
     //TMS滚轮控制.
     void TMSTetherControl(string mDataStr)
     {
         if(mDataStr==NetConfig.tether_out_on)
         {
             TMS_Tether.AddTorque(0, 0, 1);
+            tether_meters += Time.deltaTime * 10;
         }
         else if(mDataStr==NetConfig.tether_in_on)
         {
             TMS_Tether.AddTorque(0, 0, -1);
+            tether_meters -= Time.deltaTime * 10;
         }
         else
         {
 
         }
+        ControlData.Instance.TMS_meters = tether_meters;
     }
 
 
@@ -534,9 +593,10 @@ public class RobotControl : MonoBehaviour
             for (int i = 0; i < H_Propellers.Count; i++)
             {
               //  H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(Vector3.*100);
-               H_Propellers[i].transform.Rotate(new Vector3(0,speed,0));
-                // H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(new Vector3(0,speed*10,  0));
-                Debug.LogWarning(H_Propellers[i].GetComponent<Rigidbody>().angularVelocity);
+              H_Propellers[i].transform.Rotate(new Vector3(0,speed,0));
+                // H_Propellers[i].GetComponent<Rigidbody>().AddTorque(0,0,speed*100);
+               // Debug.LogWarning(H_Propellers[i].GetComponent<Rigidbody>().angularVelocity);
+
             }
         }
         
@@ -545,8 +605,8 @@ public class RobotControl : MonoBehaviour
             for (int i = 0; i < V_Propellers.Count; i++)
             {
                 //H_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(Vector3.forward * 10);
-                //V_Propellers[i].GetComponent<Rigidbody>().AddRelativeTorque(new Vector3(0,0,speed*10));
-                V_Propellers[i].transform.Rotate(new Vector3( 0,speed,0));
+                //V_Propellers[i].GetComponent<Rigidbody>().AddTorque(0,speed*100,0);
+               V_Propellers[i].transform.Rotate(new Vector3( 0,speed,0));
             }
         }
        
@@ -554,11 +614,12 @@ public class RobotControl : MonoBehaviour
 
     public  void LampControl(bool showPortSTBD,bool showBulletPT,bool showBottomPT,bool showAll)
     {
-        light_port.gameObject.SetActive(showPortSTBD || showAll);
-        light_STBD.gameObject.SetActive(showPortSTBD || showAll);
-        light_bullet.gameObject.SetActive(showBulletPT || showAll);
-        light_pt.gameObject.SetActive(showBulletPT || showAll);
-        light_pt_bottom.gameObject.SetActive(showBottomPT || showAll);
+        Directional_light_Sun.intensity= (showPortSTBD || showAll) ? 0.5f : 0;
+        light_port.intensity=(showPortSTBD || showAll) ? 10 :0;
+        light_STBD.intensity=(showPortSTBD || showAll)? 10:0;
+        light_bullet.intensity=(showBulletPT || showAll) ? 10:0;
+        light_pt.intensity=(showBulletPT || showAll)? 10:0;
+        light_pt_bottom.intensity=(showBottomPT || showAll)? 10:0;
         for (int i = 0; i < lamp_port_STBD.Count; i++)
             {
                 if (showPortSTBD || showAll)

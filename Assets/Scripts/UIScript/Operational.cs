@@ -25,9 +25,13 @@ public class Operational : MonoBehaviour
     float rovEuler = 0.0f;
     public Slider sl_Altitude;
     public Slider sl_Depth;
+    public Text txt__TMS_BigRoll;
+    public Text txt__TMS_SmallRoll;
+    public Text txt_TMS_Meter;
     // Start is called before the first frame update
     void Start()
     {
+        Debug.LogError(this.gameObject.name);
         MsgMng.Instance.Register(MessageName.MSG_MOVE_FWD, OnMove);
         MsgMng.Instance.Register(MessageName.MSG_MOVE_BWD, OnMove);
         MsgMng.Instance.Register(MessageName.MSG_MOVE_LEFT, OnMove);
@@ -48,6 +52,7 @@ public class Operational : MonoBehaviour
         OnShow();
         sl_Altitude.value = (30 - depth) / 30;
         sl_Depth.value = depth / 30;
+        OnTMS();
     }
  
     RobotControl.DIR dir;
@@ -123,6 +128,13 @@ public class Operational : MonoBehaviour
                 break;
         }
        
+    }
+
+    private void OnTMS()
+    {
+        txt_TMS_Meter.text = ControlData.Instance.TMS_meters.ToString("f2") + "m";
+        txt__TMS_BigRoll.text =((1000f- ControlData.Instance.TMS_meters)/ 10f).ToString("f2")+"%";
+        txt__TMS_SmallRoll.text = ((ControlData.Instance.TMS_meters) / 100f).ToString("f2") + "%"; ;
     }
     private void OnMove(MessageData data)
     {
